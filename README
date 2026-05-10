@@ -1,0 +1,85 @@
+# Import Cost Predictor - 进口成本预测工具
+
+基于 XGBoost 机器学习模型的进口成本预测系统。输入产品信息、供应商、物流方式等参数，预测各项成本（Exwork、Freight、Local、Brokerage）及总进口成本。
+
+## 📋 项目简介
+
+本项目使用 XGBoost 回归模型，根据历史进口数据训练，能够预测：
+- **Exwork(M)** - 工厂交货成本
+- **Freight(O)** - 海运/空运成本
+- **Local(Q)** - 本地费用
+- **Brokerage(S)** - 报关手续费
+- **Total Import Cost** - 总进口成本
+
+同时提供**组合优化功能**：从多个供应商、发货地、运输方式、贸易条款中自动找出成本最低的方案。
+
+## 🗂️ 项目结构
+COOP/
+├── app.py # Flask 后端主程序
+├── models.pkl # 主模型（4个目标变量）
+├── model2.pkl # Exwork 专用模型
+├── dropdown_data.json # 下拉框数据（供应商/发货地等）
+├── updated_data.xlsx # 原始训练数据
+├── coop_(1).ipynb # Jupyter Notebook（模型训练）+ 主模型及Exwork专用模型导出 + Flask后端主程序导出代码
+├── templates/
+│ └── index.html # 前端页面
+└── README.md # 项目说明
+
+
+
+## 🚀 快速开始（服务器端）
+### 环境要求
+- Python 3.8+
+- pip 包管理器
+
+### 安装依赖
+```bash
+pip install flask flask-cors pandas numpy xgboost scikit-learn joblib
+
+### 运行项目
+python app.py
+
+### 访问网页
+仅主机访问：http://127.0.0.1:5000
+局域网访问：http://192.168.3.32:5000
+公用网可打开：https://sleek-another-dragster.ngrok-free.dev
+
+### 公用网相关信息
+Windows powershell 管理员访问输入：ngrok config add-authtoken 【总token（如下）】
+ngrok输入：ngrok http 5000
+总token获取网址：https://dashboard.ngrok.com/get-started/your-authtoken
+
+📖 使用说明（客户端）
+1. 单次预测
+选择以下参数，点击 "Predict Total Cost"：
+
+Item - 商品类别（必选）
+Vendor - 供应商
+Ship From - 发货地
+Ship Via - 运输方式（SEA/DHL/FED/AIR）
+Incoterm - 贸易条款（EXW/FOB/CIF等）
+Material Cost - 材料成本（泰铢）
+
+2. 组合优化（多选找最优方案）
+Item - 选择商品（单选）
+Vendors - 多选供应商
+Ship From - 多选发货地
+Ship Via - 多选运输方式
+Incoterms - 多选贸易条款
+点击 "Find Best Combinations"
+系统会自动遍历所有组合，按总成本排序，显示 Top N 个最优方案。
+
+
+
+📝 Incoterm 规则说明
+Incoterm	卖方负责	买方负责
+EXW	工厂交货	所有运输及清关
+FOB	工厂+国内运输	海运及后续
+CIF	工厂+海运+保险	目的港清关及后续
+DDP	所有费用	无
+
+
+最后更新：2026年4月29日
+@xyr 
+
+

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Import Cost Optimizer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            font-size: 18px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 36px;
+        }
+        .header p {
+            margin: 12px 0 0;
+            opacity: 0.9;
+            font-size: 18px;
+        }
+        .form-section {
+            padding: 40px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+            font-size: 18px;
+        }
+        .required::after {
+            content: " *";
+            color: red;
+        }
+        select, input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 14px;
+            font-size: 16px;
+            background: white;
+        }
+        select[multiple] {
+            height: 160px;
+            overflow-y: auto;
+            font-size: 15px;
+        }
+        select[multiple] option {
+            padding: 10px;
+            font-size: 15px;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 15px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result-section {
+            background: #f8f9fa;
+            padding: 40px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .result-title {
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #333;
+        }
+        .result-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 17px;
+        }
+        .result-row:last-child {
+            border-bottom: none;
+        }
+        .result-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 17px;
+        }
+        .result-value {
+            font-size: 17px;
+            font-weight: 700;
+            color: #333;
+        }
+        .result-value.total {
+            color: #667eea;
+            font-size: 26px;
+        }
+        .optimization-card {
+            background: linear-gradient(135deg, #e8f0fe 0%, #f0e8fe 100%);
+            border-left: 5px solid #667eea;
+        }
+        .footer {
+            text-align: center;
+            padding: 25px;
+            background: #f8f9fa;
+            color: #888;
+            font-size: 14px;
+        }
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-left: 12px;
+        }
+        .rules-panel {
+            background: #f0f4ff;
+            border-radius: 16px;
+            padding: 18px 22px;
+            margin-bottom: 30px;
+            border: 1px solid #667eea;
+            font-size: 15px;
+        }
+        .rules-panel h4 {
+            margin: 0 0 12px 0;
+            color: #667eea;
+            font-size: 18px;
+        }
+        .rules-panel ul {
+            margin: 0;
+            padding-left: 22px;
+        }
+        .rules-panel li {
+            margin: 6px 0;
+            font-size: 15px;
+        }
+        small {
+            font-size: 13px;
+            color: #888;
+            display: block;
+            margin-top: 6px;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+                font-size: 16px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+            .form-section {
+                padding: 25px;
+            }
+            .result-section {
+                padding: 25px;
+            }
+            .header h1 {
+                font-size: 28px;
+            }
+            select, input {
+                font-size: 15px;
+                padding: 12px 15px;
+            }
+            button {
+                font-size: 18px;
+                padding: 15px;
+            }
+            .result-title {
+                font-size: 22px;
+            }
+            .result-value.total {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Import Cost Optimizer</h1>
+            <p>Find the cheapest combination for your product</p>
+        </div>
+        
+        <div class="form-section">
+            <div class="rules-panel">
+                <h4>📋 Shipping & Incoterm Rules</h4>
+                <ul>
+                    <li><strong>BY AIR locations</strong> → Ship Via must be AIR, DHL, or FED</li>
+                    <li><strong>FOB</strong> → cannot use DHL or FED</li>
+                    <li><strong>CIF</strong> → cannot use FED</li>
+                    <li><strong>DAP</strong> → cannot use DHL or FED</li>
+                    <li><strong>DHL/FED</strong> → Exwork cost forced to 0</li>
+                </ul>
+            </div>
+            
+            <form id="optimizeForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="required">Item</label>
+                        <select id="item" required>
+                            <option value="">-- Select Item --</option>
+                            {% for item in items %}
+                            <option value="{{ item }}">{{ item }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Material Cost (Baht)</label>
+                        <input type="number" id="material_cost" value="50000" step="1000">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Unit Price (Baht)</label>
+                        <input type="number" id="unit_price" value="100" step="10">
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <div></div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Vendors (Ctrl+click for multiple)</label>
+                        <select id="vendor" multiple size="5">
+                            {% for vendor in vendors %}
+                            <option value="{{ vendor }}">{{ vendor }}</option>
+                            {% endfor %}
+                        </select>
+                        <small>Hold Ctrl (Cmd on Mac) to select multiple</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Ship From (Ctrl+click for multiple)</label>
+                        <select id="ship_from" multiple size="5">
+                            {% for sf in ship_froms %}
+                            <option value="{{ sf }}">{{ sf }}</option>
+                            {% endfor %}
+                        </select>
+                        <small>Hold Ctrl (Cmd on Mac) to select multiple</small>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Ship Via (Ctrl+click for multiple)</label>
+                        <select id="ship_via" multiple size="5">
+                            {% for sv in ship_vias %}
+                            <option value="{{ sv }}">{{ sv }}</option>
+                            {% endfor %}
+                        </select>
+                        <small>Hold Ctrl (Cmd on Mac) to select multiple</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Incoterms (Ctrl+click for multiple)</label>
+                        <select id="incoterm" multiple size="5">
+                            {% for inc in incoterms %}
+                            <option value="{{ inc }}">{{ inc }}</option>
+                            {% endfor %}
+                        </select>
+                        <small>Hold Ctrl (Cmd on Mac) to select multiple</small>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Top N results</label>
+                        <select id="top_n">
+                            <option value="3">Top 3</option>
+                            <option value="5" selected>Top 5</option>
+                            <option value="10">Top 10</option>
+                            <option value="20">Top 20</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="submit">🔍 Find Best Combinations</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="result-section" id="resultSection" style="display: none;">
+            <div class="result-title">🏆 Best Combinations <span id="resultCount" class="badge"></span></div>
+            <div id="results"></div>
+        </div>
+        
+        <div class="footer">
+            ⚡ Finds cheapest combination | Currency: Thai Baht (THB)
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('optimizeForm');
+        const resultsDiv = document.getElementById('results');
+        const resultSection = document.getElementById('resultSection');
+        const resultCount = document.getElementById('resultCount');
+        
+        function getSelectedValues(selectId) {
+            const select = document.getElementById(selectId);
+            const values = [];
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].selected) {
+                    values.push(select.options[i].value);
+                }
+            }
+            return values;
+        }
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const item = document.getElementById('item').value;
+            if (!item) {
+                alert('Please select an Item');
+                return;
+            }
+            
+            const data = {
+                item: item,
+                material_cost: parseFloat(document.getElementById('material_cost').value) || 0,
+                unit_price: parseFloat(document.getElementById('unit_price').value) || 100,
+                vendors: getSelectedValues('vendor'),
+                ship_froms: getSelectedValues('ship_from'),
+                ship_vias: getSelectedValues('ship_via'),
+                incoterms: getSelectedValues('incoterm'),
+                top_n: parseInt(document.getElementById('top_n').value)
+            };
+            
+            console.log('Sending:', data);
+            
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Searching...';
+            resultSection.style.display = 'none';
+            resultsDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch('/optimize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    alert('Error: ' + result.error);
+                    return;
+                }
+                
+                if (result.combinations && result.combinations.length > 0) {
+                    displayResults(result.combinations, data.item, data.material_cost);
+                    resultCount.textContent = `Showing ${result.combinations.length} results (${result.total_searched || 0} valid)`;
+                    resultSection.style.display = 'block';
+                } else {
+                    alert('No valid combinations found.\n\nPlease check rules:\n• BY AIR locations must use AIR/DHL/FED\n• FOB cannot use DHL/FED\n• CIF cannot use FED\n• DAP cannot use DHL/FED\n\n💡 Try: EXW/FCA with any shipping, or SEA for FOB/CIF');
+                }
+            } catch (error) {
+                alert('Request failed: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+        
+        function displayResults(combinations, itemName, materialCost) {
+            let html = `<div class="result-card optimization-card">
+                            <div class="result-row">
+                                <span class="result-label">Product:</span>
+                                <span class="result-value">${escapeHtml(itemName)}</span>
+                            </div>
+                            <div class="result-row">
+                                <span class="result-label">Material Cost:</span>
+                                <span class="result-value">${materialCost.toLocaleString()} Baht</span>
+                            </div>
+                        </div>`;
+            
+            combinations.forEach((combo, idx) => {
+                html += `
+                    <div class="result-card">
+                        <div class="result-row"><span class="result-label">#${idx + 1} - Vendor:</span><span class="result-value">${escapeHtml(combo.vendor)}</span></div>
+                        <div class="result-row"><span class="result-label">Ship From:</span><span class="result-value">${escapeHtml(combo.ship_from)}</span></div>
+                        <div class="result-row"><span class="result-label">Ship Via:</span><span class="result-value">${escapeHtml(combo.ship_via)}</span></div>
+                        <div class="result-row"><span class="result-label">Incoterm:</span><span class="result-value">${escapeHtml(combo.incoterm)}</span></div>
+                        <div class="result-row"><span class="result-label">🏭 Exwork:</span><span class="result-value">${combo.exwork.toLocaleString()} Baht</span></div>
+                        <div class="result-row"><span class="result-label">✈️ Freight:</span><span class="result-value">${combo.freight.toLocaleString()} Baht</span></div>
+                        <div class="result-row"><span class="result-label">🚛 Local:</span><span class="result-value">${combo.local.toLocaleString()} Baht</span></div>
+                        <div class="result-row"><span class="result-label">📋 Brokerage:</span><span class="result-value">${combo.brokerage.toLocaleString()} Baht</span></div>
+                        <div class="result-row"><span class="result-label">💰 <strong>Total:</strong></span><span class="result-value total">${combo.total.toLocaleString()} Baht</span></div>
+                    </div>
+                `;
+            });
+            resultsDiv.innerHTML = html;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
